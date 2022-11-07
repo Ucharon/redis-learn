@@ -112,3 +112,13 @@ config get databases
 ```
 
 ## 2.图形化桌面客户端
+
+### 1.Medis 介绍
+
+（1）**Medis** 是一款界面漂亮、易于使用、免费开源的 **Redis** 数据库管理工具。
+
+- **GitHub** 主页地址：https://github.com/luin/medis
+
+（2）**Medis** 基于 **Electron**、**React** 和 **Redux** 平台构建，由很多很棒的 **Node.js** 模块所组成，特别是 **ioredis** 和 **ssh2**。
+
+（3）**Medis** 提供了大部分常用的功能，包括键空间的浏览、键和键值的增删改查、重命名修改 **TTL** 等。也提供了一些 **redis-cli** 难以实现的功能，包括创建键副本、修改列表值等。这些功能都对大数据提供了支持，可以在不影响 **Redis** 性能的前提下进行操作。
