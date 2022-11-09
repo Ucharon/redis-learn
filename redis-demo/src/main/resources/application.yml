@@ -5,7 +5,7 @@ spring:
     password: 123321
     lettuce:
       pool:
-        max-active: 8  #????
-        max-idle: 8   #??????
-        min-idle: 0   #??????
-        max-wait: 100ms #??????
+        max-active: 8  #最大连接
+        max-idle: 8   #最大空闲连接
+        min-idle: 0   #最小空闲连接
+        max-wait: 100ms #连接等待时间
