@@ -296,7 +296,7 @@ SpringDataRedis的使用步骤：
 * 在application.yml配置Redis信息
 * 注入RedisTemplate
 
-### 6.2 .数据序列化器
+### 2.数据序列化器
 
 RedisTemplate可以接收任意Object作为值写入Redis
 
@@ -308,4 +308,136 @@ RedisTemplate可以接收任意Object作为值写入Redis
 
 - 可读性差
 - 内存占用较大
+
+我们可以自定义RedisTemplate的序列化方式，代码如下：
+
+```java
+@Configuration
+public class RedisConfig {
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory){
+        // 创建RedisTemplate对象
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        // 设置连接工厂
+        template.setConnectionFactory(connectionFactory);
+        // 创建JSON序列化工具
+        GenericJackson2JsonRedisSerializer jsonRedisSerializer = 
+            							new GenericJackson2JsonRedisSerializer();
+        // 设置Key的序列化
+        template.setKeySerializer(RedisSerializer.string());
+        template.setHashKeySerializer(RedisSerializer.string());
+        // 设置Value的序列化
+        template.setValueSerializer(jsonRedisSerializer);
+        template.setHashValueSerializer(jsonRedisSerializer);
+        // 返回
+        return template;
+    }
+}
+```
+
+
+
+整体可读性有了很大提升，并且能将Java对象自动的序列化为JSON字符串，并且查询时能自动把JSON反序列化为Java对象。不过，其中记录了序列化时对应的class名称，目的是为了查询时实现自动反序列化。这会带来额外的内存开销。
+
+
+
+### 3.StringRedisTemplate
+
+尽管JSON的序列化方式可以满足我们的需求，但依然存在一些问题，如图：
+
+![1653054602930](../../../Downloads/Redis注释版/.\Redis.assets\1653054602930.png)
+
+为了在反序列化时知道对象的类型，JSON序列化器会将类的class类型写入json结果中，存入Redis，会带来额外的内存开销。
+
+为了减少内存的消耗，我们可以采用手动序列化的方式，换句话说，就是不借助默认的序列化器，而是我们自己来控制序列化的动作，同时，我们只采用String的序列化器，这样，在存储value时，我们就不需要在内存中就不用多存储数据，从而节约我们的内存空间
+
+![1653054744832](../../../Downloads/Redis注释版/.\Redis.assets\1653054744832.png)
+
+这种用法比较普遍，因此SpringDataRedis就提供了RedisTemplate的子类：StringRedisTemplate，它的key和value的序列化方式默认就是String方式。
+
+![](https://i.imgur.com/zXH6Qn6.png)
+
+
+
+省去了我们自定义RedisTemplate的序列化方式的步骤，而是直接使用：
+
+```java
+@SpringBootTest
+class RedisStringTests {
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Test
+    void testString() {
+        // 写入一条String数据
+        stringRedisTemplate.opsForValue().set("verify:phone:13600527634", "124143");
+        // 获取string数据
+        Object name = stringRedisTemplate.opsForValue().get("name");
+        System.out.println("name = " + name);
+    }
+
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    @Test
+    void testSaveUser() throws JsonProcessingException {
+        // 创建对象
+        User user = new User("虎哥", 21);
+        // 手动序列化
+        String json = mapper.writeValueAsString(user);
+        // 写入数据
+        stringRedisTemplate.opsForValue().set("user:200", json);
+
+        // 获取数据
+        String jsonUser = stringRedisTemplate.opsForValue().get("user:200");
+        // 手动反序列化
+        User user1 = mapper.readValue(jsonUser, User.class);
+        System.out.println("user1 = " + user1);
+    }
+
+}
+```
+
+
+
+此时我们再来看一看存储的数据，小伙伴们就会发现那个class数据已经不在了，节约了我们的空间~
+
+![1653054945211](Redis的Java客户端.assets/1653054945211.png)
+
+最后小总结：
+
+RedisTemplate的两种序列化实践方案：
+
+* 方案一：
+    * 自定义RedisTemplate
+    * 修改RedisTemplate的序列化器为GenericJackson2JsonRedisSerializer
+
+* 方案二：
+    * 使用StringRedisTemplate
+    * 写入Redis时，手动把对象序列化为JSON
+    * 读取Redis时，手动把读取到的JSON反序列化为对象
+
+### 4.Hash结构操作
+
+在基础篇的最后，咱们对Hash结构操作一下，收一个小尾巴，这个代码咱们就不再解释啦
+
+马上就开始新的篇章~~~进入到我们的Redis实战篇
+
+```java
+class RedisStringTests {
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+
+    @Test
+    void testHash() {
+        stringRedisTemplate.opsForHash().put("user:400", "name", "吉林跑男");
+        stringRedisTemplate.opsForHash().put("user:400", "age", "24");
+
+        Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries("user:400");
+        System.out.println("entries = " + entries);
+    }
+}
+```
 
