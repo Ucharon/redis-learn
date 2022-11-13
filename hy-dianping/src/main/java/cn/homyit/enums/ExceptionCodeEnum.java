@@ -21,9 +21,14 @@ public enum ExceptionCodeEnum {
 
 
     //文件名称错误
-    FILE_NAME_ERROR(800, "文件名称错误")
-    ;
+    FILE_NAME_ERROR(800, "文件名称错误"),
 
+
+    /**
+     * 店铺有关
+     */
+    SHOP_NOT_EXIT(900, "店铺不存在")
+    ;
     private final Integer code;
     private final String desc;
 

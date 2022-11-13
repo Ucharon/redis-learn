@@ -27,7 +27,7 @@ spring:
 mybatis-plus:
   type-aliases-package: com.hydp.entity #别名扫描包
   configuration:
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
 logging:
   level:

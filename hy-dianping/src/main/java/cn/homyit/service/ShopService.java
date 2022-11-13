@@ -1,5 +1,6 @@
 package cn.homyit.service;
 
+import cn.homyit.dto.Result;
 import cn.homyit.entity.Shop;
 import com.baomidou.mybatisplus.extension.service.IService;
 
@@ -10,4 +11,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface ShopService extends IService<Shop> {
 
+    Result queryById(Long id);
 }
