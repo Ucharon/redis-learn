@@ -3,10 +3,12 @@ package cn.homyit.controller;
 
 import cn.homyit.dto.LoginFormDTO;
 import cn.homyit.dto.Result;
+import cn.homyit.dto.UserDTO;
 import cn.homyit.entity.UserInfo;
 import cn.homyit.enums.ExceptionCodeEnum;
 import cn.homyit.service.UserInfoService;
 import cn.homyit.service.UserService;
+import cn.homyit.utils.UserHolder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -63,8 +65,9 @@ public class UserController {
 
     @GetMapping("/me")
     public Result me(){
-        // TODO 获取当前登录的用户并返回
-        return Result.error(ExceptionCodeEnum.UNREALIZE);
+        // 获取当前登录的用户并返回
+        UserDTO user = UserHolder.getUser();
+        return Result.success(user);
     }
 
     @GetMapping("/info/{id}")
