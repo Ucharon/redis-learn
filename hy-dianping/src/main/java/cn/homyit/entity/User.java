@@ -40,7 +40,7 @@ public class User implements Serializable {
     /**
      * 人物头像
      */
-    private String icon;
+    private String icon = "";
 
     /**
      * 创建时间
