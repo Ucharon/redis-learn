@@ -27,7 +27,8 @@ public enum ExceptionCodeEnum {
     /**
      * 店铺有关
      */
-    SHOP_NOT_EXIT(900, "店铺不存在")
+    SHOP_NOT_EXIT(900, "店铺不存在"),
+    SHOP_TYPE_NOT_EXIT(901, "商品类型不存在")
     ;
     private final Integer code;
     private final String desc;
