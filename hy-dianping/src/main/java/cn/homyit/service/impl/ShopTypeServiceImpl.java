@@ -2,10 +2,6 @@ package cn.homyit.service.impl;
 
 import cn.homyit.enums.ExceptionCodeEnum;
 import cn.homyit.exception.BizException;
-import cn.homyit.utils.RedisConstants;
-import cn.homyit.utils.SystemConstants;
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.ListUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cn.homyit.entity.ShopType;
@@ -16,7 +12,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
+import static cn.homyit.utils.RedisConstants.*;
 
 /**
  * @author charon
@@ -33,7 +32,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType>
     @Override
     public List<ShopType> queryList() {
         //1.从redis查找缓存
-        String key = RedisConstants.CACHE_SHOP_TYPE_KEY;
+        String key = CACHE_SHOP_TYPE_KEY;
         List<String> shopTypesJSON = stringRedisTemplate.opsForList().range(key, 0, -1);
 
         //2.如果存在，直接返回
@@ -48,7 +47,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType>
 
         //4.不存在，直接返回没有查询到
         if (shopTypes == null) {
-            throw new BizException(ExceptionCodeEnum.SHOP_TYPE_NOT_EXIT);
+            throw new BizException(ExceptionCodeEnum.SHOP_TYPE_NOT_EXIST);
         }
 
         //5.存在，使用List结构将数据存入redis
@@ -57,6 +56,7 @@ public class ShopTypeServiceImpl extends ServiceImpl<ShopTypeMapper, ShopType>
                 .collect(Collectors.toList());
 
         stringRedisTemplate.opsForList().rightPushAll(key, shopTypesJSON);
+        stringRedisTemplate.expire(key, CACHE_SHOP_TTL, TimeUnit.MINUTES);
         //6.返回
         return shopTypes;
     }
