@@ -2,6 +2,7 @@ package cn.homyit.handler;
 
 
 import cn.homyit.dto.Result;
+import cn.homyit.enums.ExceptionCodeEnum;
 import cn.homyit.exception.BizException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -39,6 +40,12 @@ public class GlobalExceptionHandler {
     public Result handleBizException(BizException e) {
         return Result.error(e.getError());
     }
+    @ExceptionHandler(Exception.class)
+    public Result handleException(Exception e) {
+        e.printStackTrace();
+        return Result.error(ExceptionCodeEnum.ERROR);
+    }
+
     //
     ///**
     // * 文件或图片大小过大
